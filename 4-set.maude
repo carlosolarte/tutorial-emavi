@@ -1,0 +1,50 @@
+--- A Set of natural numbers
+
+fmod MY-SET is
+
+ protecting NAT .
+
+ sorts  Set .
+
+ --- A natural number is a multiset (a singleton)
+ subsort Nat < Set . 
+
+ --- The empty multiset
+ op empty : -> Set [ctor] .
+
+ --- Composing multisets
+ op _,_ : Set Set -> Set [ctor assoc comm id: empty] .
+
+ var  E     : Nat  .
+ vars S'  S : Set .
+
+ --- Idempotency
+ eq E, E = E .
+
+ --- Insert an element
+ op insert : Nat Set -> Set .
+ eq insert(E, S) = E, S .
+
+ --- Owise: if none of the previous rules applies
+ op delete : Nat Set -> Set .
+ eq delete(E, (E, S)) = S .  --- matching modulo axioms
+ eq delete(E, S) = S [owise] .
+
+--- x is in S ?
+ op _in_ : Nat Set -> Bool .
+ eq E in (E, S) = true .
+ eq E in S = false [owise] .
+
+ --- Multiset union
+ op union : Set Set -> Set .
+ eq union(S, S') = S, S' .
+endfm
+
+eof
+
+---some tests
+--- Note that the order is irrelevant
+red 3 , 2 , 5 , 3 ,5 . 
+red union( (1,2,3) , (2,3,4) ) .
+red 3 in (1,2,3) . 
+red delete (3, 3) . 

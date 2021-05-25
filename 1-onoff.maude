@@ -1,0 +1,31 @@
+--- Defining the states of the system
+--- A simple machine ON-OFF
+fmod STATE is
+ --- A new sort/type
+ sort State .
+
+ --- Two constructors for that sort
+ ops ON OFF : -> State .
+endfm
+
+--- Behavior of the system
+mod MACHINE is
+ pr STATE . --- Import the previous module
+
+ --- Rules defining behavior
+ rl [go-off] : ON  => OFF .
+ rl [go-on]  : OFF => ON  .
+endm
+
+eof
+
+--- Some tests/queries
+rew [1] ON .
+rew [2] ON .
+
+--- Is it possible to move to the state OFF?
+search [1] ON =>* OFF .
+show path 1 .
+
+--- Is there a deadlock ?
+search [1] ON =>! S:State .

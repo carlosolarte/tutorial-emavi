@@ -1,0 +1,37 @@
+--- A specification of a Petri-Net (Vending Machine)
+
+mod PETRI-NET is
+  --- Sorts
+  sort Marking .
+
+  --- Constructors for the state
+  ops $ c a q : -> Marking .
+  op empty : -> Marking . --- empty marking
+  op __ : Marking Marking -> Marking [assoc comm id: empty] .
+  
+  --- Transition rules
+  rl [buy-c] : $ => c .
+  rl [buy-a] : $ => a q .
+  rl [chng] : q q q q => $ .
+endm
+
+eof
+
+--- Testing the state
+--- Commutativity 
+red $ q $ == q $ $ .
+--- Associativity
+red $ ($ c) == ($ $) c .
+--- Id Element
+red empty empty c == c .
+
+--- Some examples
+
+--- Can I buy 4 apples and a cake with 4$?
+search [1] $ $ $ $ =>* a a a a c .
+show path label 16 .
+
+
+--- What can I do with 1$?
+search $ =>+ M:Marking .
+

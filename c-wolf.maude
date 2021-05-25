@@ -1,0 +1,58 @@
+--- https://en.wikipedia.org/wiki/Wolf,_goat_and_cabbage_problem
+
+mod PUZZLE is
+    sorts Token .
+    --- Man, wold, goat and cabbage
+    ops m w g c : -> Token .
+
+    --- Sets of tokens 
+    sort SToken .
+    subsort Token < SToken .
+    op emp : -> SToken .
+    op __ : SToken SToken -> SToken [assoc comm id: emp] .
+
+    --- State of the system
+    sort State .
+
+    --- An example: [ w ] [ m c ]> [ g ]
+    --- The man and the cabbage are in the boat (going to the right)
+    --- The wold is on the left side of the river
+    --- the goat is on the right side of the river
+
+    --- Going to the right
+    op [_] [_]> [_] : SToken SToken SToken -> State .
+    --- Going to the left
+    op [_] <[_] [_] : SToken SToken SToken -> State .
+
+    --- Initial state (all of them on the left side of the river)
+    op init : -> State .
+    eq init = [ m w g c ] [emp]> [emp] .
+
+    var  ST        : SToken .
+    vars SR SB SL  : SToken .
+    var  T         : Token  .
+    
+    --- Rules for eating
+    --- canEat?(S) returns true iff on of the tokens in S is in "danger"
+    op canEat? : SToken -> Bool .
+    eq canEat?( (g w ST)) = true .
+    eq canEat?( (g c ST)) = true .
+    eq canEat?( ST) = false [owise] .
+    
+    
+      --- Rules for moving
+    --- Moving with someone
+    crl [moveRIGHT] :
+        [ SL m T ] [emp]> [ ST ]
+        =>
+        [ SL ] [m T]> [ ST ]
+        if not canEat?(SL) .
+
+    --- Write the other rules
+endm
+
+eof 
+
+--- Finding the solution
+search init =>* [ emp ] [ emp ]> [ m g c w ] .
+

@@ -1,0 +1,37 @@
+--- A list of natural numbers
+
+fmod MY-LIST is
+
+ protecting NAT .
+
+ sorts  List .
+
+ --- A natural number is a multiset (a singleton)
+ subsort Nat < List . 
+
+ --- The empty list
+ op empty : -> List [ctor] .
+
+ --- Composing lists
+ op _,_ : List List -> List [ctor assoc id: empty] .
+
+ var  E     : Nat  .
+ vars S'  S : List .
+
+ --- Insert an element
+ op insert : Nat List -> List .
+ eq insert(E, S) = E, S .
+
+ --- Append (in the end)
+ op append : Nat List -> List .
+ eq append(E, S) = S, E .
+
+ --- Concatenate 2 lists
+ op concatenate : List List -> List .
+ eq concatenate(S, S') = S, S' .
+endfm
+
+eof
+
+---some tests
+red concatenate (  (1,2,3), (4,5,6)) .

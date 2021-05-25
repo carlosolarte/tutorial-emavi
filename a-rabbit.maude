@@ -1,0 +1,23 @@
+--- Example of rabbits
+
+mod RABBIT is
+
+ sort Cell .
+ ops X O E : -> Cell .
+
+ sort Game .
+ subsort Cell < Game .
+
+ op __ : Game Game -> Game [ctor assoc] .
+
+ op init : -> Game .
+ eq init = X X X E O O O .
+
+ --- Write the rules of the system
+
+endm
+
+eof
+
+--- Finding the solution
+search init =>* O O O E X X X .

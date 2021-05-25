@@ -1,0 +1,94 @@
+--- Specification of the Peterson's algorithm
+
+***(
+1. while (true) <
+2.  bi := true;
+3.  k := j;
+4.  while (bj and k = j)  < skip  >
+
+5.  // (HERE) Code of Critical Section
+6.  bi := false;
+>
+***)
+
+load model-checker .
+mod PETERSON-STATE is
+
+ pr NAT .
+ pr CONFIGURATION .
+
+--- Defining attributes 
+ ops b1:_  b2:_  crit:_  : Bool -> Attribute .
+ op  k:_                 : Nat  -> Attribute .
+ op line:_  : Nat -> Attribute .
+
+ --- Classes and objects 
+ ops Proc Memory  : -> Cid [ctor] .
+ ops P1 P2 M      : -> Oid [ctor] .
+
+ --- Initial State
+ op init : -> Configuration .
+ eq init = < P1 : Proc   | crit: false, line: 1 >
+           < P2 : Proc   | crit: false, line: 1 >
+           < M  : Memory | b1: true, b2: true, k: 1   > .
+
+endm
+
+
+mod PETERSON-ALG is
+  pr PETERSON-STATE .
+  pr MODEL-CHECKER .
+
+  var  k        : Nat .
+  vars P1 P2    : Nat .
+  vars b1 b2    : Bool .
+  vars c1 c2    : Bool .
+  var n         : Nat .
+  var P         : Oid .
+  vars ats ats' : AttributeSet .
+  var b         : Bool .
+  var bc        : Bool .
+  var C : Configuration .
+
+
+
+  rl [12] : < P : Proc | line: 1, ats > => < P : Proc | line: 2, ats > .
+
+  rl [23] : < P1 : Proc | line: 2, ats' > < M : Memory | b1: b,    ats > => 
+            < P1 : Proc | line: 3, ats' > < M : Memory | b1: true, ats > .
+  rl [23] : < P2 : Proc | line: 2, ats' > < M : Memory | b2: b,    ats > => 
+            < P2 : Proc | line: 3, ats' > < M : Memory | b2: true, ats > .
+
+  rl [34] : < P1 : Proc | line: 3, ats' > < M : Memory | k: k, ats > =>
+            < P1 : Proc | line: 4, ats' > < M : Memory | k: 2, ats > .
+  rl [34] : < P2 : Proc | line: 3, ats' > < M : Memory | k: k, ats > =>
+            < P2 : Proc | line: 4, ats' > < M : Memory | k: 1, ats > .
+
+
+  crl [4] : < P1 : Proc | line: 4, crit: bc   >  < M : Memory | k: k, b2: b, ats > =>
+            < P1 : Proc | line: 5, crit: true >  < M : Memory | k: k, b2: b, ats > 
+           if k == 1 or b == false .
+
+  crl [4] : < P2 : Proc | line: 4, crit: bc   >  < M : Memory | k: k, b1: b, ats > =>
+            < P2 : Proc | line: 5, crit: true >  < M : Memory | k: k, b1: b, ats > 
+           if k == 2 or b == false .
+
+  rl [51] : < P1 : Proc | line: 5, crit: true >   < M : Memory | b1: b, ats > =>
+            < P1 : Proc | line: 1, crit: false >  < M : Memory | b1: false, ats > .
+  rl [51] : < P2 : Proc | line: 5, crit: true >   < M : Memory | b2: b, ats > =>
+            < P2 : Proc | line: 1, crit: false >  < M : Memory | b2: false, ats > .
+
+
+endm
+
+eof
+
+--- No deadlocks
+search [1] init =>! C .
+
+--- There is a reachable state where P1 is in?
+search [1] init =>* C < P1 : Proc | crit: true, ats > .
+
+--- Critical section
+search [1] init =>* C < P1 : Proc | crit: true, ats > < P2 : Proc | crit: true, ats' > .
+

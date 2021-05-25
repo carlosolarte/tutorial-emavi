@@ -1,0 +1,78 @@
+--- Example of Dinning Philosophers 
+mod DP is
+ pr NAT .
+ pr CONFIGURATION .
+
+ --- Classes and object identifiers 
+ ops Fork Philo : -> Cid .
+ ops p f : Nat -> Oid .
+
+ --- Attributes
+ sort Action .
+ ops eat think : -> Action .
+ sort Status .
+ ops busy free : -> Status .
+
+ op st : Action -> Attribute .
+ op st : Status -> Attribute .
+
+ vars n n' : Nat .
+ var  C    : Configuration .
+
+ op N : -> Nat .
+ eq N = 4 .
+
+ --- Initial State (for 4 philosophers)
+ op init : -> Configuration .
+ eq init = 
+   < p(0) : Philo | st(think) >
+   < p(1) : Philo | st(think) >
+   < p(2) : Philo | st(think) >
+   < p(3) : Philo | st(think) >
+   < f(0) : Fork  | st(free) >
+   < f(1) : Fork  | st(free) >
+   < f(2) : Fork  | st(free) > 
+   < f(3) : Fork  | st(free) > .
+
+
+ --- Rules of the system
+
+ --- grab the forks
+ crl [grab]:  
+            < p(n) : Philo | st(think) >
+            < f(n) : Fork  | st(free)  >
+            < f(n') : Fork | st(free)  > 
+            =>
+            < p(n) : Philo | st(eat) >
+            < f(n) : Fork  | st(busy)  >
+            < f(n') : Fork | st(busy)  > 
+    if n' := (n + 1) rem N .
+
+ --- release the forks
+ crl [rele] : 
+            < p(n) : Philo | st(eat) >
+            < f(n) : Fork  | st(busy)  >
+            < f(n') : Fork | st(busy)  >  
+            =>
+            < p(n) : Philo | st(think) >
+            < f(n) : Fork  | st(free)  >
+            < f(n') : Fork | st(free)  > 
+    if n' := (n + 1) rem N .
+
+endm
+
+eof
+
+--- Deadlocks
+search init =>! C .
+
+--- Safety
+search [1] init =>* C < p(0) : Philo | st(eat) > < p(1) : Philo | st(eat) > .
+
+--- Concurrency
+search [1] init =>* C < p(0) : Philo | st(eat) > < p(2) : Philo | st(eat) > .
+
+
+
+
+

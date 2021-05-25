@@ -1,0 +1,47 @@
+--- Hanoi Towers
+--- Adapted from 
+--- Francisco Durán, Steven Eker, Santiago Escobar, Narciso Martí-Oliet, José Meseguer, Rubén Rubio, Carolyn L. Talcott:
+--- Programming and symbolic computation in Maude. J. Log. Algebraic Methods Program. 110 (2020)
+
+
+fmod HANOI-STATE is
+    pr NAT-LIST . --- Maude's list of natural numbers
+
+    sort Tower .
+    --- The fist argument is the ID of the tower
+    --- The second is the list of disks in the tower
+    op (_)[_] : Nat NatList -> Tower [ctor] .
+
+    --- Defining a multiset of towers
+    sort Hanoi .
+    subsort Tower < Hanoi .
+    op empty : -> Hanoi [ctor] .
+    op __ : Hanoi Hanoi -> Hanoi [ctor assoc comm id: empty] . 
+
+    --- Initial state
+    op init : -> Hanoi .
+    eq init = (1)[3 2 1] (2)[nil] (3)[nil] .
+endfm
+
+mod HANOI is
+    pr HANOI-STATE .
+    vars T1 T2 Nat . --- IDs of towers
+    vars D1 D2 : Nat . --- Size of disks
+    vars L1 L2 : NatList .
+    var H : Hanoi . 
+
+    --- Dynamic behavior
+    rl [move] : (T1) [L1 D1] (T2) [nil] => 
+                (T1) [L1]    (T2) [D1] .
+
+    crl [move] : (T1) [L1 D1] (T2) [L2 D2] => 
+                 (T1) [L1]    (T2) [L2 D2 D1] 
+    if D2 > D1 .
+endm
+
+eof
+
+--- How can we find solution to the problem ?
+--- How can we check that the rules of the game are respected (never a larger
+--- disk is on top of a smaller one)
+

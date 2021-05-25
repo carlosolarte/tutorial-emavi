@@ -1,0 +1,44 @@
+--- Die Hard
+--- 3 bins with capacity (3,5,8) gallons. 
+--- How can we produce 4 gallons?
+
+mod DIE-HARD is
+
+ pr NAT .
+ pr CONFIGURATION .
+
+ --- Class and object IDs
+ op B : -> Cid .
+ op b : -> Oid .
+
+ --- Capacity and current level
+ ops cap:_ con:_ : Nat -> Attribute .
+
+ --- The initial configuration 
+ op init : -> Configuration .
+ eq init = 
+    < b : B | cap: 3 , con: 0 >
+    < b : B | cap: 5 , con: 0 >
+    < b : B | cap: 8 , con: 0 >
+    .
+
+ vars n m   : Nat .
+ vars n' m' : Nat .
+
+ rl [empty] : < b : B | cap: n , con: m > 
+              =>
+              < b : B | cap: n , con: 0 > .
+
+ --- Write the missing rules
+
+ var C : Configuration .
+endm
+
+eof
+
+--- Searching for a solution
+search init =>* C < b : B | cap: n , con: 4 > .
+
+--- this will never happen (content > capacity)
+search init =>* C < b : B | cap: n , con: m > such that m > n .
+

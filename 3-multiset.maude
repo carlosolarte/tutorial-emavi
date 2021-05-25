@@ -1,0 +1,47 @@
+--- A multiset of Natural Numbers
+
+fmod MMSet is
+
+ protecting NAT .
+
+ sorts  MSet .
+
+ --- A natural number is a multiset (a singleton)
+ subsort Nat < MSet . 
+
+ --- The empty multiset
+ op empty : -> MSet [ctor] .
+
+ --- Composing multisets
+ op _,_ : MSet MSet -> MSet [ctor assoc comm id: empty] .
+
+ var  E     : Nat  .
+ vars S'  S : MSet .
+
+ --- Insert an element
+ op insert : Nat MSet -> MSet .
+ eq insert(E, S) = E, S .
+
+ --- Owise: if none of the previous rules applies
+ op delete : Nat MSet -> MSet .
+ eq delete(E, (E, S)) = S .  --- matching modulo axioms
+ eq delete(E, S) = S [owise] .
+
+--- x is in S ?
+ op _in_ : Nat MSet -> Bool .
+ eq E in (E, S) = true .
+ eq E in S = false [owise] .
+
+ --- Multiset union
+ op union : MSet MSet -> MSet .
+ eq union(S, S') = S, S' .
+endfm
+
+eof
+
+---some tests
+--- Note that the order is irrelevant
+red 3 , 2 , 5 , 3 ,5 . 
+red union( (1,2,3) , (2,3,4) ) .
+red 3 in (1,2,3) . 
+red delete (3, 3) . 

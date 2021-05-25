@@ -1,0 +1,82 @@
+--- https://en.wikipedia.org/wiki/Wolf,_goat_and_cabbage_problem
+
+mod PUZZLE is
+    sorts Token .
+    --- Man, wold, goat and cabage
+    ops m w g c : -> Token .
+
+    --- Sets of tokens 
+    sort SToken .
+    subsort Token < SToken .
+    op emp : -> SToken .
+    op __ : SToken SToken -> SToken [assoc comm id: emp] .
+
+    --- State of the system
+    sort State .
+    --- To the right
+    op [_] [_]> [_] : SToken SToken SToken -> State .
+    --- To the left
+    op [_] <[_] [_] : SToken SToken SToken -> State .
+
+    --- Initial state
+    op init : -> State .
+    eq init = [ m w g c ] [emp]> [emp] .
+
+    var  ST        : SToken .
+    vars SR SB SL  : SToken .
+    var  T         : Token  .
+    
+    --- Rules for eating
+    op canEat? : SToken -> Bool .
+    eq canEat?( (g w ST)) = true .
+    eq canEat?( (g c ST)) = true .
+    eq canEat?( ST) = false [owise] .
+    
+    
+      --- Rules for moving
+    --- Moving with someone
+    crl [moveRIGHT] :
+        [ SL m T ] [emp]> [ ST ]
+        =>
+        [ SL ] [m T]> [ ST ]
+        if not canEat?(SL) .
+
+    crl [moveRIGHT] :
+        [ SL m ] [emp]> [ ST ]
+        =>
+        [ SL ] [ m ]> [ ST ]
+        if not canEat?(SL) .
+
+    rl [onRight] : 
+       [ SL ] [ SB ]> [ SR ] =>
+       [ SL ] [ emp ]> [ SR SB ] .
+
+    rl [changeDir] : 
+       [ SL ] [ emp ]> [ SR ] =>
+       [ SL ] <[ emp ] [ SR ] .
+
+    rl [changeDir] : 
+       [ SL ] <[ emp ] [ SR ] =>
+       [ SL ] [ emp ]> [ SR ] .
+
+    crl [moveLEFT] : 
+      [ SL ] <[ emp ] [ m T SR ] =>
+      [ SL ] <[ m T ] [ SR ] 
+      if not canEat?(SR) .
+
+    crl [moveLEFT] : 
+      [ SL ] <[ emp ] [ m SR ] =>
+      [ SL ] <[ m ] [ SR ] 
+      if not canEat?(SR) .
+
+    rl [onLeft] : 
+      [ SL ] <[ SB ] [ SR ] =>
+      [ SL SB ] <[ emp ] [ SR ] .
+    
+    
+endm
+
+eof 
+
+search init =>* [ emp ] [ emp ]> [ m g c w ] .
+
